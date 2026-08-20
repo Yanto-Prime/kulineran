@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, MapPin, Clock, ArrowRight, X, Check, Coffee, Store, TrendingUp, Megaphone, Wallet } from "lucide-react";
 
-// ---------------------------------------------------------------------------
-// GANTI DATA DI BAWAH INI dengan penjual & produk asli Anda.
-// "connectorPhone" = nomor WhatsApp ANDA (sebagai penghubung/admin).
-// Setiap pesanan akan masuk ke nomor ini agar Anda bisa teruskan ke penjual asli.
-// ---------------------------------------------------------------------------
-const connectorPhone = "6281234567890"; // contoh — ganti dengan nomor WA Anda
+// GANTI NOMOR INI DENGAN NOMOR WA ADMIN KAMU. PAKAI KODE NEGARA 62
+const connectorPhone = "62812XXXXXXXX"; // <-- GANTI INI
 
 const products = [
   {
@@ -90,6 +86,8 @@ function OrderModal({ product, onClose }) {
     }
     setSaving(true);
     setError("");
+
+    // Simpan ke localStorage biar ada riwayat
     const order = {
       product: product.name,
       seller: product.seller,
@@ -100,468 +98,54 @@ function OrderModal({ product, onClose }) {
       time: new Date().toISOString(),
     };
     try {
-      const key = `orders:${Date.now()}`;
-      await window.storage.set(key, JSON.stringify(order), true);
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      orders.push(order);
+      localStorage.setItem('orders', JSON.stringify(orders));
     } catch (err) {
-      // Penyimpanan gagal — pesanan tetap bisa dikirim lewat WhatsApp
-      console.error("Gagal menyimpan catatan pesanan:", err);
+      console.error("Gagal menyimpan:", err);
     }
-    const msg = encodeURIComponent(
-      `Halo, saya ${form.name} ingin pesan:\n\n` +
-        `Menu: ${product.name} (${product.seller})\n` +
-        `Jumlah: ${form.qty}\n` +
-        `Catatan: ${form.note || "-"}\n` +
-        `No. WA saya: ${form.phone}`
-    );
-    window.open(`https://wa.me/${connectorPhone}?text=${msg}`, "_blank");
+
+    // Kirim ke WA Admin
+    const text = `Halo Admin Kuliner Siantar\n\nSaya mau pesan:\nProduk: ${product.name}\nDari: ${product.seller}\nJumlah: ${form.qty}\nNama: ${form.name}\nNo WA: ${form.phone}\nCatatan: ${form.note || '-'}`;
+    const waUrl = `https://wa.me/${connectorPhone}?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+    
     setSaving(false);
-    onClose(true);
+    onClose();
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
-      style={{ background: "rgba(28,18,16,0.72)" }}
-      onClick={() => onClose(false)}
-    >
-      <div
-        className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-6"
-        style={{ background: "#F1E9DC", border: "1px solid #C89B3C" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <p className="text-xs tracking-widest uppercase" style={{ color: "#7A2E2E", fontFamily: "'IBM Plex Mono', monospace" }}>
-              Pesan hidangan
-            </p>
-            <h3 className="text-xl" style={{ fontFamily: "'Fraunces', serif", color: "#2B211D" }}>
-              {product.name}
-            </h3>
-            <p className="text-sm" style={{ color: "#7A2E2E" }}>{product.seller}</p>
-          </div>
-          <button onClick={() => onClose(false)} aria-label="Tutup" style={{ color: "#7A2E2E" }}>
-            <X size={20} />
-          </button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Pesan {product.name}</h3>
+          <button onClick={onClose}><X /></button>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nama</label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
-              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
-              placeholder="Nama Anda"
-            />
-          </div>
-          <div>
-            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nomor WhatsApp</label>
-            <input
-              type="tel"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
-              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
-              placeholder="08xxxxxxxxxx"
-            />
-          </div>
-          <div>
-            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Jumlah</label>
-            <input
-              type="number"
-              min={1}
-              value={form.qty}
-              onChange={(e) => setForm({ ...form, qty: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
-              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
-            />
-          </div>
-          <div>
-            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Catatan (opsional)</label>
-            <textarea
-              value={form.note}
-              onChange={(e) => setForm({ ...form, note: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
-              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
-              rows={2}
-              placeholder="Contoh: tidak pakai pedas"
-            />
-          </div>
-
-          {error && <p className="text-sm" style={{ color: "#7A2E2E" }}>{error}</p>}
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium mt-2"
-            style={{ background: "#7A2E2E", color: "#F1E9DC" }}
-          >
-            <MessageCircle size={18} />
-            {saving ? "Menyiapkan pesan..." : "Lanjut ke WhatsApp"}
+          <input type="text" placeholder="Nama Kamu" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} className="w-full border rounded-lg p-2" required/>
+          <input type="tel" placeholder="No WhatsApp" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} className="w-full border rounded-lg p-2" required/>
+          <input type="number" placeholder="Jumlah" value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} className="w-full border rounded-lg p-2" min="1"/>
+          <textarea placeholder="Catatan" value={form.note} onChange={e=>setForm({...form,note:e.target.value})} className="w-full border rounded-lg p-2"/>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <button type="submit" disabled={saving} className="w-full bg-green-500 text-white rounded-lg p-3 font-bold">
+            {saving ? "Mengirim..." : "Kirim via WhatsApp"}
           </button>
-          <p className="text-xs text-center" style={{ color: "#9c8a72" }}>
-            Anda akan diarahkan ke WhatsApp untuk mengirim pesanan ini ke tim penghubung Dapur Siantar.
-          </p>
         </form>
       </div>
     </div>
   );
 }
 
-function SellerModal({ onClose }) {
-  const [form, setForm] = useState({ shop: "", owner: "", phone: "", menu: "" });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!form.shop.trim() || !form.phone.trim()) {
-      setError("Nama warung dan nomor WhatsApp wajib diisi.");
-      return;
-    }
-    setSaving(true);
-    setError("");
-    const seller = { ...form, time: new Date().toISOString() };
-    try {
-      const key = `sellers:${Date.now()}`;
-      await window.storage.set(key, JSON.stringify(seller), true);
-    } catch (err) {
-      console.error("Gagal menyimpan data mitra:", err);
-    }
-    const msg = encodeURIComponent(
-      `Halo, saya ingin daftar sebagai mitra penjual Dapur Siantar.\n\n` +
-        `Nama warung: ${form.shop}\n` +
-        `Nama pemilik: ${form.owner}\n` +
-        `Menu andalan: ${form.menu || "-"}\n` +
-        `No. WA: ${form.phone}`
-    );
-    window.open(`https://wa.me/${connectorPhone}?text=${msg}`, "_blank");
-    setSaving(false);
-    onClose(true);
-  }
-
+// ...lanjutkan komponen website kamu di bawah sini
+export default function App() {
+  const [selectedProduct, setSelectedProduct] = useState(null);
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
-      style={{ background: "rgba(28,18,16,0.72)" }}
-      onClick={() => onClose(false)}
-    >
-      <div
-        className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-6"
-        style={{ background: "#F1E9DC", border: "1px solid #C89B3C" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <p className="text-xs tracking-widest uppercase" style={{ color: "#7A2E2E", fontFamily: "'IBM Plex Mono', monospace" }}>
-              Daftar mitra
-            </p>
-            <h3 className="text-xl" style={{ fontFamily: "'Fraunces', serif", color: "#2B211D" }}>
-              Gabung jadi penjual
-            </h3>
-          </div>
-          <button onClick={() => onClose(false)} aria-label="Tutup" style={{ color: "#7A2E2E" }}>
-            <X size={20} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nama warung/kedai</label>
-            <input
-              type="text"
-              value={form.shop}
-              onChange={(e) => setForm({ ...form, shop: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
-              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
-              placeholder="Contoh: Warung Mie Gomak Bu Rina"
-            />
-          </div>
-          <div>
-            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nama pemilik</label>
-            <input
-              type="text"
-              value={form.owner}
-              onChange={(e) => setForm({ ...form, owner: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
-              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
-              placeholder="Nama Anda"
-            />
-          </div>
-          <div>
-            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nomor WhatsApp</label>
-            <input
-              type="tel"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
-              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
-              placeholder="08xxxxxxxxxx"
-            />
-          </div>
-          <div>
-            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Menu andalan</label>
-            <input
-              type="text"
-              value={form.menu}
-              onChange={(e) => setForm({ ...form, menu: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
-              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
-              placeholder="Contoh: Roti Ganda, Gulai Ayam"
-            />
-          </div>
-
-          {error && <p className="text-sm" style={{ color: "#7A2E2E" }}>{error}</p>}
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium mt-2"
-            style={{ background: "#7A2E2E", color: "#F1E9DC" }}
-          >
-            <Store size={18} />
-            {saving ? "Menyiapkan pesan..." : "Kirim pendaftaran"}
-          </button>
-          <p className="text-xs text-center" style={{ color: "#9c8a72" }}>
-            Kami akan menghubungi Anda lewat WhatsApp untuk atur menu dan mulai terima pesanan.
-          </p>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-function WeavePattern({ flip }) {
-  // Motif garis bertingkat terinspirasi tenun ulos — elemen penanda halaman ini
-  return (
-    <div className="flex w-full" style={{ height: 10, transform: flip ? "scaleY(-1)" : "none" }}>
-      {Array.from({ length: 24 }).map((_, i) => (
-        <div
-          key={i}
-          style={{
-            flex: 1,
-            height: "100%",
-            background: i % 3 === 0 ? "#C89B3C" : i % 3 === 1 ? "#7A2E2E" : "#F1E9DC",
-          }}
-        />
+    <div>
+      {/* isi website kamu */}
+      {products.map(p => (
+        <button key={p.id} onClick={()=>setSelectedProduct(p)}>Pesan</button>
       ))}
+      {selectedProduct && <OrderModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} />}
     </div>
-  );
-}
-
-export default function DapurSiantar() {
-  const [activeProduct, setActiveProduct] = useState(null);
-  const [showSellerForm, setShowSellerForm] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
-  const [confirmedText, setConfirmedText] = useState("Pesanan disiapkan — lanjutkan di WhatsApp");
-
-  useEffect(() => {
-    if (!confirmed) return;
-    const t = setTimeout(() => setConfirmed(false), 4000);
-    return () => clearTimeout(t);
-  }, [confirmed]);
-
-  return (
-    <div style={{ background: "#F1E9DC", minHeight: "100vh", fontFamily: "'Work Sans', sans-serif", color: "#2B211D" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
-      `}</style>
-
-      {/* NAV */}
-      <header className="flex items-center justify-between px-6 sm:px-12 py-5" style={{ background: "#1C1210" }}>
-        <div className="flex items-center gap-2" style={{ color: "#F1E9DC" }}>
-          <Coffee size={20} style={{ color: "#C89B3C" }} />
-          <span style={{ fontFamily: "'Fraunces', serif", fontSize: 20 }}>Dapur Siantar</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <a href="#penjual" className="hidden sm:inline text-sm" style={{ color: "#d8cdb8" }}>
-            Untuk Penjual
-          </a>
-          <a
-            href="#katalog"
-            className="text-sm px-4 py-2 rounded-full"
-            style={{ background: "#C89B3C", color: "#1C1210", fontFamily: "'IBM Plex Mono', monospace" }}
-          >
-            Lihat Katalog
-          </a>
-        </div>
-      </header>
-
-      <WeavePattern />
-
-      {/* HERO */}
-      <section className="px-6 sm:px-12 py-16 sm:py-24" style={{ background: "#1C1210", color: "#F1E9DC" }}>
-        <div className="max-w-3xl">
-          <p className="text-xs tracking-[0.2em] uppercase mb-4" style={{ color: "#C89B3C", fontFamily: "'IBM Plex Mono', monospace" }}>
-            Kami bantu jualan, warung tetap yang masak
-          </p>
-          <h1 className="text-4xl sm:text-6xl leading-tight mb-6" style={{ fontFamily: "'Fraunces', serif" }}>
-            Kami urus jualannya,<br />warung Siantar urus rasanya.
-          </h1>
-          <p className="text-base sm:text-lg max-w-xl" style={{ color: "#d8cdb8" }}>
-            Dapur Siantar membantu warung dan dapur rumahan di Pematangsiantar
-            promosi dan terima pesanan online. Setiap pesanan yang berhasil, kami
-            ambil bagian kecil sebagai jasa perantara — warung tidak bayar di muka
-            sepeser pun.
-          </p>
-          <div className="flex flex-wrap gap-3 mt-8">
-            <a
-              href="#katalog"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
-              style={{ background: "#7A2E2E", color: "#F1E9DC" }}
-            >
-              Jelajahi Hidangan <ArrowRight size={16} />
-            </a>
-            <a
-              href="#penjual"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
-              style={{ border: "1px solid #C89B3C", color: "#F1E9DC" }}
-            >
-              Daftar Jadi Mitra <Store size={16} />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <WeavePattern flip />
-
-      {/* CARA KERJA */}
-      <section className="px-6 sm:px-12 py-16">
-        <h2 className="text-2xl sm:text-3xl mb-10" style={{ fontFamily: "'Fraunces', serif" }}>Cara kerja</h2>
-        <div className="grid sm:grid-cols-3 gap-8">
-          {steps.map((s) => (
-            <div key={s.n}>
-              <p style={{ fontFamily: "'IBM Plex Mono', monospace", color: "#C89B3C", fontSize: 13 }}>{s.n}</p>
-              <h3 className="text-lg mt-2 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>{s.title}</h3>
-              <p className="text-sm" style={{ color: "#5c4f42" }}>{s.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* UNTUK PENJUAL */}
-      <section id="penjual" className="px-6 sm:px-12 py-16" style={{ background: "#1C1210", color: "#F1E9DC" }}>
-        <div className="flex items-center gap-2 mb-3">
-          <TrendingUp size={18} style={{ color: "#C89B3C" }} />
-          <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "#C89B3C", fontFamily: "'IBM Plex Mono', monospace" }}>
-            Untuk pemilik warung &amp; dapur rumahan
-          </p>
-        </div>
-        <h2 className="text-2xl sm:text-3xl mb-10 max-w-xl" style={{ fontFamily: "'Fraunces', serif" }}>
-          Fokus masak. Urusan promosi dan pesanan, biar kami yang pegang.
-        </h2>
-        <div className="grid sm:grid-cols-3 gap-8 mb-10">
-          {sellerBenefits.map((b, i) => (
-            <div key={i}>
-              <b.icon size={20} style={{ color: "#C89B3C" }} className="mb-3" />
-              <h3 className="text-lg mb-1" style={{ fontFamily: "'Fraunces', serif" }}>{b.title}</h3>
-              <p className="text-sm" style={{ color: "#d8cdb8" }}>{b.body}</p>
-            </div>
-          ))}
-        </div>
-        <button
-          onClick={() => setShowSellerForm(true)}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
-          style={{ background: "#C89B3C", color: "#1C1210" }}
-        >
-          <Store size={16} /> Daftarkan Warung Anda
-        </button>
-      </section>
-
-      <WeavePattern flip />
-
-      {/* KATALOG */}
-      <section id="katalog" className="px-6 sm:px-12 py-16" style={{ background: "#e9dfc9" }}>
-        <div className="flex items-baseline justify-between mb-10 flex-wrap gap-2">
-          <h2 className="text-2xl sm:text-3xl" style={{ fontFamily: "'Fraunces', serif" }}>Katalog hidangan</h2>
-          <p className="text-sm" style={{ color: "#7A2E2E", fontFamily: "'IBM Plex Mono', monospace" }}>{products.length} penjual terhubung</p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((p) => (
-            <div key={p.id} className="rounded-2xl overflow-hidden flex flex-col" style={{ background: "#F1E9DC", border: "1px solid #d8cdb8" }}>
-              <div className="px-5 pt-5 flex items-start justify-between">
-                <span className="text-xs px-2 py-1 rounded-full" style={{ background: "#7A2E2E", color: "#F1E9DC", fontFamily: "'IBM Plex Mono', monospace" }}>
-                  {p.tag}
-                </span>
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: "#2B211D", fontSize: 14 }}>{p.price}</span>
-              </div>
-              <div className="px-5 pt-3 flex-1">
-                <h3 className="text-xl" style={{ fontFamily: "'Fraunces', serif" }}>{p.name}</h3>
-                <p className="text-sm mt-1" style={{ color: "#5c4f42" }}>{p.desc}</p>
-                <div className="mt-3 flex items-center gap-1 text-xs" style={{ color: "#7A2E2E" }}>
-                  <MapPin size={13} /> {p.seller} &middot; {p.area}
-                </div>
-              </div>
-              <button
-                onClick={() => setActiveProduct(p)}
-                className="m-5 mt-4 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm"
-                style={{ background: "#1C1210", color: "#F1E9DC" }}
-              >
-                <MessageCircle size={16} /> Pesan hidangan ini
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <WeavePattern />
-
-      {/* TENTANG */}
-      <section className="px-6 sm:px-12 py-16" style={{ background: "#1C1210", color: "#d8cdb8" }}>
-        <div className="max-w-2xl">
-          <Clock size={20} style={{ color: "#C89B3C" }} className="mb-4" />
-          <h2 className="text-2xl mb-3" style={{ fontFamily: "'Fraunces', serif", color: "#F1E9DC" }}>Kami bukan dapurnya, kami tim jualannya.</h2>
-          <p className="text-sm leading-relaxed">
-            Dapur Siantar bekerja sama dengan warung, kedai, dan dapur rumahan asli
-            Pematangsiantar untuk urusan promosi dan penerimaan pesanan online.
-            Warung tidak perlu bayar di muka — kami mendapatkan penghasilan dari
-            bagian kecil setiap pesanan yang berhasil kami bantu, jadi kami hanya
-            untung kalau warung mitra juga laku.
-          </p>
-        </div>
-      </section>
-
-      <footer className="px-6 sm:px-12 py-8 text-xs flex items-center justify-between flex-wrap gap-2" style={{ background: "#1C1210", color: "#8a7a64" }}>
-        <span>Dapur Siantar &middot; Bantu warung Siantar jualan online</span>
-        <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>Kami dapat bagian dari setiap pesanan</span>
-      </footer>
-
-      {activeProduct && (
-        <OrderModal
-          product={activeProduct}
-          onClose={(success) => {
-            setActiveProduct(null);
-            if (success) {
-              setConfirmedText("Pesanan disiapkan — lanjutkan di WhatsApp");
-              setConfirmed(true);
-            }
-          }}
-        />
-      )}
-
-      {showSellerForm && (
-        <SellerModal
-          onClose={(success) => {
-            setShowSellerForm(false);
-            if (success) {
-              setConfirmedText("Pendaftaran dikirim — lanjutkan di WhatsApp");
-              setConfirmed(true);
-            }
-          }}
-        />
-      )}
-
-      {confirmed && (
-        <div
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full flex items-center gap-2 z-50"
-          style={{ background: "#1C1210", color: "#F1E9DC" }}
-        >
-          <Check size={16} style={{ color: "#C89B3C" }} /> {confirmedText}
-        </div>
-      )}
-    </div>
-  );
+  )
 }
