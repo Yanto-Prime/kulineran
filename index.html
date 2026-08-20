@@ -1,151 +1,126 @@
-import { useState, useEffect } from "react";
-import { MessageCircle, MapPin, Clock, ArrowRight, X, Check, Coffee, Store, TrendingUp, Megaphone, Wallet } from "lucide-react";
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog Kuliner Siantar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style> body{font-family: 'Poppins', sans-serif;} </style>
+</head>
+<body class="bg-orange-50">
 
-// GANTI NOMOR INI DENGAN NOMOR WA ADMIN KAMU. PAKAI KODE NEGARA 62
-const connectorPhone = "62812XXXXXXXX"; // <-- GANTI INI
+<!-- HEADER -->
+<header class="bg-white shadow sticky top-0 z-40">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-orange-600">Kuliner Siantar</h1>
+    <p class="text-sm text-gray-500">Katalog Pesanan Online</p>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="text-center py-12 px-4">
+  <h2 class="text-4xl font-bold mb-2">Cita Rasa Asli Siantar</h2>
+  <p class="text-gray-600">Pesan langsung, kami teruskan ke dapur penjualnya</p>
+</section>
+
+<!-- PRODUK -->
+<main class="max-w-6xl mx-auto px-4 pb-20">
+  <div id="produk-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</main>
+
+<!-- CARA PESAN -->
+<section class="bg-white py-12">
+  <div class="max-w-4xl mx-auto px-4 text-center">
+    <h3 class="text-2xl font-bold mb-6">Cara Pesan</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div><div class="text-3xl font-bold text-orange-500">01</div><p class="font-semibold">Pilih hidangan</p><p class="text-sm text-gray-500">Telusuri katalog kami</p></div>
+      <div><div class="text-3xl font-bold text-orange-500">02</div><p class="font-semibold">Isi pesanan</p><p class="text-sm text-gray-500">Lengkapi nama & WA kamu</p></div>
+      <div><div class="text-3xl font-bold text-orange-500">03</div><p class="font-semibold">Kami teruskan</p><p class="text-sm text-gray-500">Pesanan masuk ke penjual</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div id="modal" class="hidden fixed inset-0 bg-black/60 items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="modal-title" class="text-xl font-bold"></h3>
+      <button onclick="closeModal()" class="text-2xl">&times;</button>
+    </div>
+    <form id="order-form" class="space-y-3">
+      <input type="text" id="name" placeholder="Nama Lengkap" class="w-full border rounded-lg p-3" required>
+      <input type="tel" id="phone" placeholder="No WhatsApp Aktif" class="w-full border rounded-lg p-3" required>
+      <input type="number" id="qty" placeholder="Jumlah" value="1" min="1" class="w-full border rounded-lg p-3">
+      <textarea id="note" placeholder="Catatan untuk penjual" rows="3" class="w-full border rounded-lg p-3"></textarea>
+      <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg p-3 font-bold">Kirim Pesanan via WhatsApp</button>
+    </form>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-gray-800 text-white text-center py-6">
+  <p>© 2026 Kuliner Siantar. Pesan diteruskan ke penjual asli.</p>
+</footer>
+
+<script>
+// ===== GANTI NOMOR WA ADMIN KAMU DI SINI =====
+const connectorPhone = "62812XXXXXXXX"; // Pake 62, tanpa + dan 0
 
 const products = [
-  {
-    id: 1,
-    name: "Roti Ganda",
-    seller: "Toko Roti Ganda Malanton",
-    area: "Jl. Sutomo, Siantar",
-    price: "Rp 3.000/pcs",
-    desc: "Roti legendaris Siantar sejak 1979, isi mentega & meses klasik.",
-    tag: "Ikon Siantar",
-  },
-  {
-    id: 2,
-    name: "Kopi Kok Tong",
-    seller: "Kedai Kopi Kok Tong",
-    area: "Jl. Cipto, Siantar",
-    price: "Rp 45.000/250gr",
-    desc: "Kopi sangrai turun-temurun sejak 1925, aroma khas robusta lokal.",
-    tag: "Sejak 1925",
-  },
-  {
-    id: 3,
-    name: "Mie Gomak Siantar",
-    seller: "Warung Mie Gomak Bu Rina",
-    area: "Pasar Horas, Siantar",
-    price: "Rp 15.000/porsi",
-    desc: "Mie lidi bumbu andaliman, pedas gurih khas Batak.",
-    tag: "Pedas Andaliman",
-  },
-  {
-    id: 4,
-    name: "Sup Ubi Siantar",
-    seller: "Dapur Ubi Uwak",
-    area: "Jl. Merdeka, Siantar",
-    price: "Rp 12.000/mangkuk",
-    desc: "Sup ubi manis kuah bening, camilan sore khas Siantar.",
-    tag: "Camilan Sore",
-  },
-  {
-    id: 5,
-    name: "Gulai Ayam Rempah",
-    seller: "Rumah Makan Boru Siantar",
-    area: "Jl. Asahan, Siantar",
-    price: "Rp 28.000/porsi",
-    desc: "Gulai rempah kental, resep keluarga tiga generasi.",
-    tag: "Resep Keluarga",
-  },
-  {
-    id: 6,
-    name: "Bika Panggang Siantar",
-    seller: "Toko Kue Siantar Manis",
-    area: "Jl. Diponegoro, Siantar",
-    price: "Rp 25.000/loyang",
-    desc: "Bika gula aren panggang, tekstur lembut aroma pandan.",
-    tag: "Tahan 3 Hari",
-  },
+  { id: 1, name: "Roti Ganda", seller: "Toko Roti Ganda Malanton", area: "Jl. Sutomo, Siantar", price: "Rp 3.000/pcs", desc: "Roti legendaris Siantar sejak 1979, isi mentega & meses klasik.", tag: "Ikon Siantar" },
+  { id: 2, name: "Kopi Kok Tong", seller: "Kedai Kopi Kok Tong", area: "Jl. Cipto, Siantar", price: "Rp 45.000/250gr", desc: "Kopi sangrai turun-temurun sejak 1925, aroma khas robusta lokal.", tag: "Sejak 1925" },
+  { id: 3, name: "Mie Gomak Siantar", seller: "Warung Mie Gomak Bu Rina", area: "Pasar Horas, Siantar", price: "Rp 15.000/porsi", desc: "Mie lidi bumbu andaliman, pedas gurih khas Batak.", tag: "Pedas Andaliman" },
+  { id: 4, name: "Sup Ubi Siantar", seller: "Dapur Ubi Uwak", area: "Jl. Merdeka, Siantar", price: "Rp 12.000/mangkuk", desc: "Sup ubi manis kuah bening, camilan sore khas Siantar.", tag: "Camilan Sore" },
+  { id: 5, name: "Gulai Ayam Rempah", seller: "Rumah Makan Boru Siantar", area: "Jl. Asahan, Siantar", price: "Rp 28.000/porsi", desc: "Gulai rempah kental, resep keluarga tiga generasi.", tag: "Resep Keluarga" },
+  { id: 6, name: "Bika Panggang Siantar", seller: "Toko Kue Siantar Manis", area: "Jl. Diponegoro, Siantar", price: "Rp 25.000/loyang", desc: "Bika gula aren panggang, tekstur lembut aroma pandan.", tag: "Tahan 3 Hari" },
 ];
 
-const steps = [
-  { n: "01", title: "Pilih hidangan", body: "Telusuri katalog, setiap hidangan tertaut ke penjual aslinya di Siantar." },
-  { n: "02", title: "Isi pesanan", body: "Tulis nama, nomor WA, dan jumlah pesanan pada formulir singkat." },
-  { n: "03", title: "Kami teruskan", body: "Pesanan Anda diteruskan ke dapur asli, Anda tinggal menunggu kabar konfirmasi." },
-];
+let selectedProduct = {};
 
-const sellerBenefits = [
-  { icon: Megaphone, title: "Dipromosikan tanpa biaya di muka", body: "Warung Anda tampil di katalog dan konten media sosial kami — Anda tidak menanggung biaya iklan." },
-  { icon: MessageCircle, title: "Pesanan langsung masuk rapi", body: "Kami yang menerima, menyusun, dan meneruskan pesanan ke warung Anda lewat WhatsApp." },
-  { icon: Wallet, title: "Bayar hanya saat laku", body: "Tidak ada biaya pendaftaran atau bulanan. Kami hanya mengambil bagian kecil dari setiap pesanan yang benar-benar terjadi." },
-];
-
-function OrderModal({ product, onClose }) {
-  const [form, setForm] = useState({ name: "", phone: "", qty: 1, note: "" });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!form.name.trim() || !form.phone.trim()) {
-      setError("Nama dan nomor WhatsApp wajib diisi.");
-      return;
-    }
-    setSaving(true);
-    setError("");
-
-    // Simpan ke localStorage biar ada riwayat
-    const order = {
-      product: product.name,
-      seller: product.seller,
-      buyer: form.name,
-      phone: form.phone,
-      qty: form.qty,
-      note: form.note,
-      time: new Date().toISOString(),
-    };
-    try {
-      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-      orders.push(order);
-      localStorage.setItem('orders', JSON.stringify(orders));
-    } catch (err) {
-      console.error("Gagal menyimpan:", err);
-    }
-
-    // Kirim ke WA Admin
-    const text = `Halo Admin Kuliner Siantar\n\nSaya mau pesan:\nProduk: ${product.name}\nDari: ${product.seller}\nJumlah: ${form.qty}\nNama: ${form.name}\nNo WA: ${form.phone}\nCatatan: ${form.note || '-'}`;
-    const waUrl = `https://wa.me/${connectorPhone}?text=${encodeURIComponent(text)}`;
-    window.open(waUrl, '_blank');
-    
-    setSaving(false);
-    onClose();
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Pesan {product.name}</h3>
-          <button onClick={onClose}><X /></button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input type="text" placeholder="Nama Kamu" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} className="w-full border rounded-lg p-2" required/>
-          <input type="tel" placeholder="No WhatsApp" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} className="w-full border rounded-lg p-2" required/>
-          <input type="number" placeholder="Jumlah" value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} className="w-full border rounded-lg p-2" min="1"/>
-          <textarea placeholder="Catatan" value={form.note} onChange={e=>setForm({...form,note:e.target.value})} className="w-full border rounded-lg p-2"/>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button type="submit" disabled={saving} className="w-full bg-green-500 text-white rounded-lg p-3 font-bold">
-            {saving ? "Mengirim..." : "Kirim via WhatsApp"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+function openModal(p) {
+  selectedProduct = p;
+  document.getElementById('modal-title').innerText = "Pesan " + p.name;
+  document.getElementById('modal').classList.remove('hidden');
+  document.getElementById('modal').classList.add('flex');
+}
+function closeModal() {
+  document.getElementById('modal').classList.add('hidden');
 }
 
-// ...lanjutkan komponen website kamu di bawah sini
-export default function App() {
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  return (
-    <div>
-      {/* isi website kamu */}
-      {products.map(p => (
-        <button key={p.id} onClick={()=>setSelectedProduct(p)}>Pesan</button>
-      ))}
-      {selectedProduct && <OrderModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} />}
+document.getElementById('order-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  const qty = document.getElementById('qty').value;
+  const note = document.getElementById('note').value;
+  
+  // Simpan ke localStorage
+  const order = {product: selectedProduct.name, seller: selectedProduct.seller, buyer: name, phone, qty, note, time: new Date().toLocaleString()};
+  const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+  orders.push(order);
+  localStorage.setItem('orders', JSON.stringify(orders));
+
+  // Kirim ke WA
+  const text = `*PESANAN BARU - KULINER SIANTAR*\n\nProduk: ${selectedProduct.name}\nPenjual: ${selectedProduct.seller}\nJumlah: ${qty}\n\n*Data Pembeli*\nNama: ${name}\nNo WA: ${phone}\nCatatan: ${note || '-'}`;
+  window.open(`https://wa.me/${connectorPhone}?text=${encodeURIComponent(text)}`, '_blank');
+  closeModal();
+  alert("Pesanan diteruskan ke WhatsApp Admin!");
+});
+
+// Render Produk
+document.getElementById('produk-list').innerHTML = products.map(p => `
+  <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
+    <div class="p-5">
+      <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">${p.tag}</span>
+      <h2 class="font-bold text-xl mt-2">${p.name}</h2>
+      <p class="text-sm text-gray-500">${p.seller} - ${p.area}</p>
+      <p class="text-sm text-gray-600 mt-2 h-12">${p.desc}</p>
+      <p class="font-bold text-lg text-orange-600 mt-3">${p.price}</p>
+      <button onclick='openModal(${JSON.stringify(p).replace(/"/g, '&quot;')})' class="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-lg font-semibold">Pesan Sekarang</button>
     </div>
-  )
-}
+  </div>
+`).join('');
+</script>
+</body>
+  </html>
