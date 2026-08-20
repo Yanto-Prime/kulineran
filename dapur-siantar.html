@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dapur Siantar — Bantu Warung Siantar Jualan Online</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  :root{
+    --bg-dark:#1C1210;
+    --maroon:#7A2E2E;
+    --gold:#C89B3C;
+    --cream:#F1E9DC;
+    --ink:#2B211D;
+    --katalog-bg:#e9dfc9;
+    --muted:#5c4f42;
+    --muted-2:#8a7a64;
+    --border:#d8cdb8;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Work Sans',sans-serif;}
+  .serif{font-family:'Fraunces',serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  input,textarea{font-family:inherit;font-size:14px;}
+
+  /* Nav */
+  header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;background:var(--bg-dark);}
+  .brand{display:flex;align-items:center;gap:8px;color:var(--cream);font-size:20px;}
+  .nav-links{display:flex;align-items:center;gap:16px;}
+  .nav-link{font-size:14px;color:#d8cdb8;display:none;}
+  .btn-pill{font-size:14px;padding:10px 18px;border-radius:999px;background:var(--gold);color:var(--bg-dark);}
+  @media(min-width:640px){
+    header{padding:20px 48px;}
+    .nav-link{display:inline;}
+  }
+
+  /* weave */
+  .weave{display:flex;width:100%;height:10px;}
+  .weave.flip{transform:scaleY(-1);}
+  .weave span{flex:1;height:100%;}
+
+  section{padding:64px 24px;}
+  @media(min-width:640px){ section{padding:64px 48px;} }
+
+  /* Hero */
+  .hero{background:var(--bg-dark);color:var(--cream);padding-top:64px;padding-bottom:64px;}
+  @media(min-width:640px){ .hero{padding-top:96px;padding-bottom:96px;} }
+  .hero-inner{max-width:720px;}
+  .eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+  .hero h1{font-size:36px;line-height:1.15;margin:0 0 24px;}
+  @media(min-width:640px){ .hero h1{font-size:56px;} }
+  .hero p.lead{font-size:16px;max-width:560px;color:#d8cdb8;line-height:1.6;}
+  @media(min-width:640px){ .hero p.lead{font-size:18px;} }
+  .hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px;}
+  .btn-maroon{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;background:var(--maroon);color:var(--cream);}
+  .btn-outline{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;border:1px solid var(--gold);color:var(--cream);background:transparent;}
+
+  /* Cara kerja */
+  h2.section-title{font-size:26px;margin:0 0 40px;}
+  @media(min-width:640px){ h2.section-title{font-size:30px;} }
+  .steps-grid{display:grid;grid-template-columns:1fr;gap:32px;}
+  @media(min-width:640px){ .steps-grid{grid-template-columns:repeat(3,1fr);} }
+  .step-n{font-size:13px;color:var(--gold);margin:0;}
+  .step-title{font-size:18px;margin:8px 0 4px;}
+  .step-body{font-size:14px;color:var(--muted);margin:0;}
+
+  /* Untuk penjual */
+  .seller-section{background:var(--bg-dark);color:var(--cream);}
+  .seller-eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .seller-eyebrow p{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0;}
+  .seller-heading{font-size:26px;max-width:520px;margin:0 0 40px;}
+  @media(min-width:640px){ .seller-heading{font-size:30px;} }
+  .seller-grid{display:grid;grid-template-columns:1fr;gap:32px;margin-bottom:40px;}
+  @media(min-width:640px){ .seller-grid{grid-template-columns:repeat(3,1fr);} }
+  .seller-card-title{font-size:18px;margin:12px 0 4px;}
+  .seller-card-body{font-size:14px;color:#d8cdb8;margin:0;}
+  .btn-gold{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;background:var(--gold);color:var(--bg-dark);}
+
+  /* Katalog */
+  .katalog-section{background:var(--katalog-bg);}
+  .katalog-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:40px;}
+  .katalog-count{font-size:14px;color:var(--maroon);margin:0;}
+  .card-grid{display:grid;grid-template-columns:1fr;gap:24px;}
+  @media(min-width:640px){ .card-grid{grid-template-columns:repeat(2,1fr);} }
+  @media(min-width:1024px){ .card-grid{grid-template-columns:repeat(3,1fr);} }
+  .card{background:var(--cream);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+  .card-top{padding:20px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;}
+  .tag{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--maroon);color:var(--cream);}
+  .price{font-size:14px;}
+  .card-body{padding:12px 20px 0;flex:1;}
+  .card-body h3{font-size:20px;margin:0 0 4px;}
+  .card-body p.desc{font-size:14px;color:var(--muted);margin:0;}
+  .seller-loc{margin-top:12px;display:flex;align-items:center;gap:4px;font-size:12px;color:var(--maroon);}
+  .card-btn{margin:20px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:8px;background:var(--bg-dark);color:var(--cream);font-size:14px;}
+
+  /* Tentang */
+  .about-section{background:var(--bg-dark);color:#d8cdb8;}
+  .about-inner{max-width:640px;}
+  .about-inner h2{font-size:24px;margin:0 0 12px;color:var(--cream);}
+  .about-inner p{font-size:14px;line-height:1.7;margin:0;}
+
+  footer{padding:32px 24px;font-size:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--bg-dark);color:var(--muted-2);}
+  @media(min-width:640px){ footer{padding:32px 48px;} }
+
+  /* Modal */
+  .overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(28,18,16,.72);}
+  .overlay.open{display:flex;}
+  .modal{width:100%;max-width:420px;border-radius:16px;padding:24px;background:var(--cream);border:1px solid var(--gold);}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+  .modal-eyebrow{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--maroon);margin:0;}
+  .modal-title{font-size:20px;margin:2px 0;}
+  .modal-sub{font-size:14px;color:var(--maroon);margin:0;}
+  .close-btn{background:none;color:var(--maroon);font-size:18px;line-height:1;padding:4px;}
+  .field{margin-bottom:12px;}
+  .field label{font-size:12px;text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:4px;}
+  .field input,.field textarea{width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink);outline:none;}
+  .error-text{font-size:14px;color:var(--maroon);margin:8px 0;}
+  .submit-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:8px;background:var(--maroon);color:var(--cream);font-weight:500;margin-top:8px;}
+  .submit-btn:disabled{opacity:.6;}
+  .modal-note{font-size:12px;text-align:center;color:var(--muted-2);margin-top:8px;}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:999px;display:none;align-items:center;gap:8px;background:var(--bg-dark);color:var(--cream);z-index:50;font-size:14px;}
+  .toast.open{display:flex;}
+</style>
+</head>
+<body>
+
+<!-- ===========================================================
+     GANTI DATA DI SINI: nomor WhatsApp Anda (sebagai penghubung/admin).
+     Semua pesanan & pendaftaran mitra akan dikirim ke nomor ini.
+     =========================================================== -->
+<script>
+  window.CONNECTOR_PHONE = "6281234567890"; // contoh — ganti dengan nomor WA Anda
+</script>
+
+<header>
+  <div class="brand"><span>☕</span><span class="serif">Dapur Siantar</span></div>
+  <div class="nav-links">
+    <a href="#penjual" class="nav-link">Untuk Penjual</a>
+    <a href="#katalog" class="btn-pill mono">Lihat Katalog</a>
+  </div>
+</header>
+
+<div class="weave" id="weave1"></div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow mono">Kami bantu jualan, warung tetap yang masak</p>
+    <h1 class="serif">Kami urus jualannya,<br />warung Siantar urus rasanya.</h1>
+    <p class="lead">Dapur Siantar membantu warung dan dapur rumahan di Pematangsiantar promosi dan terima pesanan online. Setiap pesanan yang berhasil, kami ambil bagian kecil sebagai jasa perantara — warung tidak bayar di muka sepeser pun.</p>
+    <div class="hero-ctas">
+      <a href="#katalog" class="btn-maroon">Jelajahi Hidangan →</a>
+      <a href="#penjual" class="btn-outline">🏪 Daftar Jadi Mitra</a>
+    </div>
+  </div>
+</section>
+
+<div class="weave flip" id="weave2"></div>
+
+<section>
+  <h2 class="section-title serif">Cara kerja</h2>
+  <div class="steps-grid">
+    <div>
+      <p class="step-n mono">01</p>
+      <h3 class="step-title serif">Pilih hidangan</h3>
+      <p class="step-body">Telusuri katalog, setiap hidangan tertaut ke penjual aslinya di Siantar.</p>
+    </div>
+    <div>
+      <p class="step-n mono">02</p>
+      <h3 class="step-title serif">Isi pesanan</h3>
+      <p class="step-body">Tulis nama, nomor WA, dan jumlah pesanan pada formulir singkat.</p>
+    </div>
+    <div>
+      <p class="step-n mono">03</p>
+      <h3 class="step-title serif">Kami teruskan</h3>
+      <p class="step-body">Pesanan Anda diteruskan ke dapur asli, Anda tinggal menunggu kabar konfirmasi.</p>
+    </div>
+  </div>
+</section>
+
+<section id="penjual" class="seller-section">
+  <div class="seller-eyebrow">
+    <span>📈</span>
+    <p class="mono">Untuk pemilik warung &amp; dapur rumahan</p>
+  </div>
+  <h2 class="seller-heading serif">Fokus masak. Urusan promosi dan pesanan, biar kami yang pegang.</h2>
+  <div class="seller-grid">
+    <div>
+      <div style="font-size:20px;">📣</div>
+      <h3 class="seller-card-title serif">Dipromosikan tanpa biaya di muka</h3>
+      <p class="seller-card-body">Warung Anda tampil di katalog dan konten media sosial kami — Anda tidak menanggung biaya iklan.</p>
+    </div>
+    <div>
+      <div style="font-size:20px;">💬</div>
+      <h3 class="seller-card-title serif">Pesanan langsung masuk rapi</h3>
+      <p class="seller-card-body">Kami yang menerima, menyusun, dan meneruskan pesanan ke warung Anda lewat WhatsApp.</p>
+    </div>
+    <div>
+      <div style="font-size:20px;">💰</div>
+      <h3 class="seller-card-title serif">Bayar hanya saat laku</h3>
+      <p class="seller-card-body">Tidak ada biaya pendaftaran atau bulanan. Kami hanya mengambil bagian kecil dari setiap pesanan yang benar-benar terjadi.</p>
+    </div>
+  </div>
+  <button class="btn-gold" onclick="openSellerModal()">🏪 Daftarkan Warung Anda</button>
+</section>
+
+<div class="weave flip" id="weave3"></div>
+
+<section id="katalog" class="katalog-section">
+  <div class="katalog-head">
+    <h2 class="section-title serif" style="margin:0;">Katalog hidangan</h2>
+    <p class="katalog-count mono" id="katalog-count"></p>
+  </div>
+  <div class="card-grid" id="card-grid"></div>
+</section>
+
+<div class="weave" id="weave4"></div>
+
+<section class="about-section">
+  <div class="about-inner">
+    <div style="font-size:20px;margin-bottom:16px;">🕐</div>
+    <h2 class="serif">Kami bukan dapurnya, kami tim jualannya.</h2>
+    <p>Dapur Siantar bekerja sama dengan warung, kedai, dan dapur rumahan asli Pematangsiantar untuk urusan promosi dan penerimaan pesanan online. Warung tidak perlu bayar di muka — kami mendapatkan penghasilan dari bagian kecil setiap pesanan yang berhasil kami bantu, jadi kami hanya untung kalau warung mitra juga laku.</p>
+  </div>
+</section>
+
+<footer>
+  <span>Dapur Siantar &middot; Bantu warung Siantar jualan online</span>
+  <span class="mono">Kami dapat bagian dari setiap pesanan</span>
+</footer>
+
+<!-- ORDER MODAL -->
+<div class="overlay" id="order-overlay" onclick="if(event.target===this) closeOrderModal(false)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div>
+        <p class="modal-eyebrow mono">Pesan hidangan</p>
+        <h3 class="modal-title serif" id="order-product-name"></h3>
+        <p class="modal-sub" id="order-product-seller"></p>
+      </div>
+      <button class="close-btn" onclick="closeOrderModal(false)">✕</button>
+    </div>
+    <form id="order-form" onsubmit="submitOrder(event)">
+      <div class="field">
+        <label class="mono">Nama</label>
+        <input type="text" id="order-name" placeholder="Nama Anda" />
+      </div>
+      <div class="field">
+        <label class="mono">Nomor WhatsApp</label>
+        <input type="tel" id="order-phone" placeholder="08xxxxxxxxxx" />
+      </div>
+      <div class="field">
+        <label class="mono">Jumlah</label>
+        <input type="number" id="order-qty" min="1" value="1" />
+      </div>
+      <div class="field">
+        <label class="mono">Catatan (opsional)</label>
+        <textarea id="order-note" rows="2" placeholder="Contoh: tidak pakai pedas"></textarea>
+      </div>
+      <p class="error-text" id="order-error" style="display:none;"></p>
+      <button type="submit" class="submit-btn" id="order-submit-btn">💬 Lanjut ke WhatsApp</button>
+      <p class="modal-note">Anda akan diarahkan ke WhatsApp untuk mengirim pesanan ini ke tim penghubung Dapur Siantar.</p>
+    </form>
+  </div>
+</div>
+
+<!-- SELLER MODAL -->
+<div class="overlay" id="seller-overlay" onclick="if(event.target===this) closeSellerModal(false)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div>
+        <p class="modal-eyebrow mono">Daftar mitra</p>
+        <h3 class="modal-title serif">Gabung jadi penjual</h3>
+      </div>
+      <button class="close-btn" onclick="closeSellerModal(false)">✕</button>
+    </div>
+    <form id="seller-form" onsubmit="submitSeller(event)">
+      <div class="field">
+        <label class="mono">Nama warung/kedai</label>
+        <input type="text" id="seller-shop" placeholder="Contoh: Warung Mie Gomak Bu Rina" />
+      </div>
+      <div class="field">
+        <label class="mono">Nama pemilik</label>
+        <input type="text" id="seller-owner" placeholder="Nama Anda" />
+      </div>
+      <div class="field">
+        <label class="mono">Nomor WhatsApp</label>
+        <input type="tel" id="seller-phone" placeholder="08xxxxxxxxxx" />
+      </div>
+      <div class="field">
+        <label class="mono">Menu andalan</label>
+        <input type="text" id="seller-menu" placeholder="Contoh: Roti Ganda, Gulai Ayam" />
+      </div>
+      <p class="error-text" id="seller-error" style="display:none;"></p>
+      <button type="submit" class="submit-btn" id="seller-submit-btn">🏪 Kirim pendaftaran</button>
+      <p class="modal-note">Kami akan menghubungi Anda lewat WhatsApp untuk atur menu dan mulai terima pesanan.</p>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span>✅</span><span id="toast-text"></span>
+</div>
+
+<script>
+  // -------------------------------------------------------------
+  // GANTI DATA PRODUK & PENJUAL DI SINI dengan mitra asli Anda.
+  // -------------------------------------------------------------
+  const products = [
+    { id: 1, name: "Roti Ganda", seller: "Toko Roti Ganda Malanton", area: "Jl. Sutomo, Siantar", price: "Rp 3.000/pcs", desc: "Roti legendaris Siantar sejak 1979, isi mentega & meses klasik.", tag: "Ikon Siantar" },
+    { id: 2, name: "Kopi Kok Tong", seller: "Kedai Kopi Kok Tong", area: "Jl. Cipto, Siantar", price: "Rp 45.000/250gr", desc: "Kopi sangrai turun-temurun sejak 1925, aroma khas robusta lokal.", tag: "Sejak 1925" },
+    { id: 3, name: "Mie Gomak Siantar", seller: "Warung Mie Gomak Bu Rina", area: "Pasar Horas, Siantar", price: "Rp 15.000/porsi", desc: "Mie lidi bumbu andaliman, pedas gurih khas Batak.", tag: "Pedas Andaliman" },
+    { id: 4, name: "Sup Ubi Siantar", seller: "Dapur Ubi Uwak", area: "Jl. Merdeka, Siantar", price: "Rp 12.000/mangkuk", desc: "Sup ubi manis kuah bening, camilan sore khas Siantar.", tag: "Camilan Sore" },
+    { id: 5, name: "Gulai Ayam Rempah", seller: "Rumah Makan Boru Siantar", area: "Jl. Asahan, Siantar", price: "Rp 28.000/porsi", desc: "Gulai rempah kental, resep keluarga tiga generasi.", tag: "Resep Keluarga" },
+    { id: 6, name: "Bika Panggang Siantar", seller: "Toko Kue Siantar Manis", area: "Jl. Diponegoro, Siantar", price: "Rp 25.000/loyang", desc: "Bika gula aren panggang, tekstur lembut aroma pandan.", tag: "Tahan 3 Hari" },
+  ];
+
+  let activeProduct = null;
+  let toastTimer = null;
+
+  function renderWeave(el){
+    let html = "";
+    for(let i=0;i<24;i++){
+      const color = i%3===0 ? "var(--gold)" : i%3===1 ? "var(--maroon)" : "var(--cream)";
+      html += `<span style="background:${color}"></span>`;
+    }
+    el.innerHTML = html;
+  }
+  ["weave1","weave2","weave3","weave4"].forEach(id => renderWeave(document.getElementById(id)));
+
+  function renderCatalog(){
+    const grid = document.getElementById("card-grid");
+    document.getElementById("katalog-count").textContent = products.length + " penjual terhubung";
+    grid.innerHTML = products.map(p => `
+      <div class="card">
+        <div class="card-top">
+          <span class="tag mono">${p.tag}</span>
+          <span class="price mono">${p.price}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="serif">${p.name}</h3>
+          <p class="desc">${p.desc}</p>
+          <div class="seller-loc">📍 ${p.seller} &middot; ${p.area}</div>
+        </div>
+        <button class="card-btn" onclick="openOrderModal(${p.id})">💬 Pesan hidangan ini</button>
+      </div>
+    `).join("");
+  }
+  renderCatalog();
+
+  function openOrderModal(id){
+    activeProduct = products.find(p => p.id === id);
+    document.getElementById("order-product-name").textContent = activeProduct.name;
+    document.getElementById("order-product-seller").textContent = activeProduct.seller;
+    document.getElementById("order-form").reset();
+    document.getElementById("order-qty").value = 1;
+    document.getElementById("order-error").style.display = "none";
+    document.getElementById("order-overlay").classList.add("open");
+  }
+  function closeOrderModal(){
+    document.getElementById("order-overlay").classList.remove("open");
+  }
+
+  async function submitOrder(e){
+    e.preventDefault();
+    const name = document.getElementById("order-name").value.trim();
+    const phone = document.getElementById("order-phone").value.trim();
+    const qty = document.getElementById("order-qty").value;
+    const note = document.getElementById("order-note").value.trim();
+    const errorEl = document.getElementById("order-error");
+
+    if(!name || !phone){
+      errorEl.textContent = "Nama dan nomor WhatsApp wajib diisi.";
+      errorEl.style.display = "block";
+      return;
+    }
+    errorEl.style.display = "none";
+
+    const btn = document.getElementById("order-submit-btn");
+    btn.disabled = true;
+    btn.textContent = "Menyiapkan pesan...";
+
+    const order = { product: activeProduct.name, seller: activeProduct.seller, buyer: name, phone, qty, note, time: new Date().toISOString() };
+    try{
+      if(window.storage){
+        await window.storage.set(`orders:${Date.now()}`, JSON.stringify(order), true);
+      }
+    }catch(err){
+      console.error("Gagal menyimpan catatan pesanan:", err);
+    }
+
+    const msg = encodeURIComponent(
+      `Halo, saya ${name} ingin pesan:\n\n` +
+      `Menu: ${activeProduct.name} (${activeProduct.seller})\n` +
+      `Jumlah: ${qty}\n` +
+      `Catatan: ${note || "-"}\n` +
+      `No. WA saya: ${phone}`
+    );
+    window.open(`https://wa.me/${window.CONNECTOR_PHONE}?text=${msg}`, "_blank");
+
+    btn.disabled = false;
+    btn.textContent = "💬 Lanjut ke WhatsApp";
+    closeOrderModal();
+    showToast("Pesanan disiapkan — lanjutkan di WhatsApp");
+  }
+
+  function openSellerModal(){
+    document.getElementById("seller-form").reset();
+    document.getElementById("seller-error").style.display = "none";
+    document.getElementById("seller-overlay").classList.add("open");
+  }
+  function closeSellerModal(){
+    document.getElementById("seller-overlay").classList.remove("open");
+  }
+
+  async function submitSeller(e){
+    e.preventDefault();
+    const shop = document.getElementById("seller-shop").value.trim();
+    const owner = document.getElementById("seller-owner").value.trim();
+    const phone = document.getElementById("seller-phone").value.trim();
+    const menu = document.getElementById("seller-menu").value.trim();
+    const errorEl = document.getElementById("seller-error");
+
+    if(!shop || !phone){
+      errorEl.textContent = "Nama warung dan nomor WhatsApp wajib diisi.";
+      errorEl.style.display = "block";
+      return;
+    }
+    errorEl.style.display = "none";
+
+    const btn = document.getElementById("seller-submit-btn");
+    btn.disabled = true;
+    btn.textContent = "Menyiapkan pesan...";
+
+    const seller = { shop, owner, phone, menu, time: new Date().toISOString() };
+    try{
+      if(window.storage){
+        await window.storage.set(`sellers:${Date.now()}`, JSON.stringify(seller), true);
+      }
+    }catch(err){
+      console.error("Gagal menyimpan data mitra:", err);
+    }
+
+    const msg = encodeURIComponent(
+      `Halo, saya ingin daftar sebagai mitra penjual Dapur Siantar.\n\n` +
+      `Nama warung: ${shop}\n` +
+      `Nama pemilik: ${owner}\n` +
+      `Menu andalan: ${menu || "-"}\n` +
+      `No. WA: ${phone}`
+    );
+    window.open(`https://wa.me/${window.CONNECTOR_PHONE}?text=${msg}`, "_blank");
+
+    btn.disabled = false;
+    btn.textContent = "🏪 Kirim pendaftaran";
+    closeSellerModal();
+    showToast("Pendaftaran dikirim — lanjutkan di WhatsApp");
+  }
+
+  function showToast(text){
+    const toast = document.getElementById("toast");
+    document.getElementById("toast-text").textContent = text;
+    toast.classList.add("open");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("open"), 4000);
+  }
+</script>
+</body>
+</html>
