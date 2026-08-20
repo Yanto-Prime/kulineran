@@ -1,0 +1,702 @@
+import { useState, useEffect } from "react";
+import { MessageCircle, MapPin, Clock, ArrowRight, X, Check, Coffee, Store, TrendingUp, Megaphone, Wallet } from "lucide-react";
+
+// ---------------------------------------------------------------------------
+// GANTI DATA DI BAWAH INI dengan penjual & produk asli Anda.
+// "connectorPhone" = nomor WhatsApp ANDA (sebagai penghubung/admin).
+// Setiap pesanan akan masuk ke nomor ini agar Anda bisa teruskan ke penjual asli.
+// ---------------------------------------------------------------------------
+const connectorPhone = "6281234567890"; // contoh — ganti dengan nomor WA Anda
+
+const products = [
+  {
+    id: 1,
+    name: "Roti Ganda",
+    seller: "Toko Roti Ganda Malanton",
+    area: "Jl. Sutomo, Siantar",
+    price: "Rp 3.000/pcs",
+    desc: "Roti legendaris Siantar sejak 1979, isi mentega & meses klasik.",
+    tag: "Ikon Siantar",
+  },
+  {
+    id: 2,
+    name: "Kopi Kok Tong",
+    seller: "Kedai Kopi Kok Tong",
+    area: "Jl. Cipto, Siantar",
+    price: "Rp 45.000/250gr",
+    desc: "Kopi sangrai turun-temurun sejak 1925, aroma khas robusta lokal.",
+    tag: "Sejak 1925",
+  },
+  {
+    id: 3,
+    name: "Mie Gomak Siantar",
+    seller: "Warung Mie Gomak Bu Rina",
+    area: "Pasar Horas, Siantar",
+    price: "Rp 15.000/porsi",
+    desc: "Mie lidi bumbu andaliman, pedas gurih khas Batak.",
+    tag: "Pedas Andaliman",
+  },
+  {
+    id: 4,
+    name: "Sup Ubi Siantar",
+    seller: "Dapur Ubi Uwak",
+    area: "Jl. Merdeka, Siantar",
+    price: "Rp 12.000/mangkuk",
+    desc: "Sup ubi manis kuah bening, camilan sore khas Siantar.",
+    tag: "Camilan Sore",
+  },
+  {
+    id: 5,
+    name: "Gulai Ayam Rempah",
+    seller: "Rumah Makan Boru Siantar",
+    area: "Jl. Asahan, Siantar",
+    price: "Rp 28.000/porsi",
+    desc: "Gulai rempah kental, resep keluarga tiga generasi.",
+    tag: "Resep Keluarga",
+  },
+  {
+    id: 6,
+    name: "Bika Panggang Siantar",
+    seller: "Toko Kue Siantar Manis",
+    area: "Jl. Diponegoro, Siantar",
+    price: "Rp 25.000/loyang",
+    desc: "Bika gula aren panggang, tekstur lembut aroma pandan.",
+    tag: "Tahan 3 Hari",
+  },
+];
+
+const steps = [
+  { n: "01", title: "Pilih hidangan", body: "Telusuri katalog, setiap hidangan tertaut ke penjual aslinya di Siantar." },
+  { n: "02", title: "Isi pesanan", body: "Tulis nama, nomor WA, dan jumlah pesanan pada formulir singkat." },
+  { n: "03", title: "Kami teruskan", body: "Pesanan Anda diteruskan ke dapur asli, Anda tinggal menunggu kabar konfirmasi." },
+];
+
+const sellerBenefits = [
+  { icon: Megaphone, title: "Dipromosikan tanpa biaya di muka", body: "Warung Anda tampil di katalog dan konten media sosial kami — Anda tidak menanggung biaya iklan." },
+  { icon: MessageCircle, title: "Pesanan langsung masuk rapi", body: "Kami yang menerima, menyusun, dan meneruskan pesanan ke warung Anda lewat WhatsApp." },
+  { icon: Wallet, title: "Bayar hanya saat laku", body: "Tidak ada biaya pendaftaran atau bulanan. Kami hanya mengambil bagian kecil dari setiap pesanan yang benar-benar terjadi." },
+];
+
+function OrderModal({ product, onClose }) {
+  const [form, setForm] = useState({ name: "", phone: "", qty: 1, note: "" });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!form.name.trim() || !form.phone.trim()) {
+      setError("Nama dan nomor WhatsApp wajib diisi.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    const order = {
+      product: product.name,
+      seller: product.seller,
+      buyer: form.name,
+      phone: form.phone,
+      qty: form.qty,
+      note: form.note,
+      time: new Date().toISOString(),
+    };
+    try {
+      const key = `orders:${Date.now()}`;
+      await window.storage.set(key, JSON.stringify(order), true);
+    } catch (err) {
+      // Penyimpanan gagal — pesanan tetap bisa dikirim lewat WhatsApp
+      console.error("Gagal menyimpan catatan pesanan:", err);
+    }
+    const msg = encodeURIComponent(
+      `Halo, saya ${form.name} ingin pesan:\n\n` +
+        `Menu: ${product.name} (${product.seller})\n` +
+        `Jumlah: ${form.qty}\n` +
+        `Catatan: ${form.note || "-"}\n` +
+        `No. WA saya: ${form.phone}`
+    );
+    window.open(`https://wa.me/${connectorPhone}?text=${msg}`, "_blank");
+    setSaving(false);
+    onClose(true);
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
+      style={{ background: "rgba(28,18,16,0.72)" }}
+      onClick={() => onClose(false)}
+    >
+      <div
+        className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-6"
+        style={{ background: "#F1E9DC", border: "1px solid #C89B3C" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <p className="text-xs tracking-widest uppercase" style={{ color: "#7A2E2E", fontFamily: "'IBM Plex Mono', monospace" }}>
+              Pesan hidangan
+            </p>
+            <h3 className="text-xl" style={{ fontFamily: "'Fraunces', serif", color: "#2B211D" }}>
+              {product.name}
+            </h3>
+            <p className="text-sm" style={{ color: "#7A2E2E" }}>{product.seller}</p>
+          </div>
+          <button onClick={() => onClose(false)} aria-label="Tutup" style={{ color: "#7A2E2E" }}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nama</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="Nama Anda"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nomor WhatsApp</label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="08xxxxxxxxxx"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Jumlah</label>
+            <input
+              type="number"
+              min={1}
+              value={form.qty}
+              onChange={(e) => setForm({ ...form, qty: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Catatan (opsional)</label>
+            <textarea
+              value={form.note}
+              onChange={(e) => setForm({ ...form, note: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              rows={2}
+              placeholder="Contoh: tidak pakai pedas"
+            />
+          </div>
+
+          {error && <p className="text-sm" style={{ color: "#7A2E2E" }}>{error}</p>}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium mt-2"
+            style={{ background: "#7A2E2E", color: "#F1E9DC" }}
+          >
+            <MessageCircle size={18} />
+            {saving ? "Menyiapkan pesan..." : "Lanjut ke WhatsApp"}
+          </button>
+          <p className="text-xs text-center" style={{ color: "#9c8a72" }}>
+            Anda akan diarahkan ke WhatsApp untuk mengirim pesanan ini ke tim penghubung Dapur Siantar.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function SellerModal({ onClose }) {
+  const [form, setForm] = useState({ shop: "", owner: "", phone: "", menu: "" });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!form.shop.trim() || !form.phone.trim()) {
+      setError("Nama warung dan nomor WhatsApp wajib diisi.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    const seller = { ...form, time: new Date().toISOString() };
+    try {
+      const key = `sellers:${Date.now()}`;
+      await window.storage.set(key, JSON.stringify(seller), true);
+    } catch (err) {
+      console.error("Gagal menyimpan data mitra:", err);
+    }
+    const msg = encodeURIComponent(
+      `Halo, saya ingin daftar sebagai mitra penjual Dapur Siantar.\n\n` +
+        `Nama warung: ${form.shop}\n` +
+        `Nama pemilik: ${form.owner}\n` +
+        `Menu andalan: ${form.menu || "-"}\n` +
+        `No. WA: ${form.phone}`
+    );
+    window.open(`https://wa.me/${connectorPhone}?text=${msg}`, "_blank");
+    setSaving(false);
+    onClose(true);
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
+      style={{ background: "rgba(28,18,16,0.72)" }}
+      onClick={() => onClose(false)}
+    >
+      <div
+        className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-6"
+        style={{ background: "#F1E9DC", border: "1px solid #C89B3C" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <p className="text-xs tracking-widest uppercase" style={{ color: "#7A2E2E", fontFamily: "'IBM Plex Mono', monospace" }}>
+              Daftar mitra
+            </p>
+            <h3 className="text-xl" style={{ fontFamily: "'Fraunces', serif", color: "#2B211D" }}>
+              Gabung jadi penjual
+            </h3>
+          </div>
+          <button onClick={() => onClose(false)} aria-label="Tutup" style={{ color: "#7A2E2E" }}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nama warung/kedai</label>
+            <input
+              type="text"
+              value={form.shop}
+              onChange={(e) => setForm({ ...form, shop: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="Contoh: Warung Mie Gomak Bu Rina"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nama pemilik</label>
+            <input
+              type="text"
+              value={form.owner}
+              onChange={(e) => setForm({ ...form, owner: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="Nama Anda"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nomor WhatsApp</label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="08xxxxxxxxxx"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Menu andalan</label>
+            <input
+              type="text"
+              value={form.menu}
+              onChange={(e) => setForm({ ...form, menu: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="Contoh: Roti Ganda, Gulai Ayam"
+            />
+          </div>
+
+          {error && <p className="text-sm" style={{ color: "#7A2E2E" }}>{error}</p>}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium mt-2"
+            style={{ background: "#7A2E2E", color: "#F1E9DC" }}
+          >
+            <Store size={18} />
+            {saving ? "Menyiapkan pesan..." : "Kirim pendaftaran"}
+          </button>
+          <p className="text-xs text-center" style={{ color: "#9c8a72" }}>
+            Kami akan menghubungi Anda lewat WhatsApp untuk atur menu dan mulai terima pesanan.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function WeavePattern({ flip }) {
+  // Motif garis bertingkat terinspirasi tenun ulos — elemen penanda halaman ini
+  return (
+    <div className="flex w-full" style={{ height: 10, transform: flip ? "scaleY(-1)" : "none" }}>
+      {Array.from({ length: 24 }).map((_, i) => (
+        <div
+          key={i}
+          style={{
+            flex: 1,
+            height: "100%",
+            background: i % 3 === 0 ? "#C89B3C" : i % 3 === 1 ? "#7A2E2E" : "#F1E9DC",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function DapurSiantar() {
+  const [activeProduct, setActiveProduct] = useState(null);
+  const [showSellerForm, setShowSellerForm] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [confirmedText, setConfirmedText] = useState("Pesanan disiapkan — lanjutkan di WhatsApp");
+
+  useEffect(() => {
+    if (!confirmed) return;
+    const t = setTimeout(() => setConfirmed(false), 4000);
+    return () => clearTimeout(t);
+  }, [confirmed]);
+
+  return (
+    <div style={{ background: "#F1E9DC", minHeight: "100vh", fontFamily: "'Work Sans', sans-serif", color: "#2B211D" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+      `}</style>
+
+      {/* NAV */}
+      <header className="flex items-center justify-between px-6 sm:px-12 py-5" style={{ background: "#1C1210" }}>
+        <div className="flex items-center gap-2" style={{ color: "#F1E9DC" }}>
+          <Coffee size={20} style={{ color: "#C89B3C" }} />
+          <span style={{ fontFamily: "'Fraunces', serif", fontSize: 20 }}>Dapur Siantar</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <a href="#penjual" className="hidden sm:inline text-sm" style={{ color: "#d8cdb8" }}>
+            Untuk Penjual
+          </a>
+          <a
+            href="#katalog"
+            className="text-sm px-4 py-2 rounded-full"
+            style={{ background: "#C89B3C", color: "#1C1210", fontFamily: "'IBM Plex Mono', monospace" }}
+          >
+            Lihat Katalog
+          </a>
+        </div>
+      </header>
+
+      <WeavePattern />
+
+      {/* HERO */}
+      <section className="px-6 sm:px-12 py-16 sm:py-24" style={{ background: "#1C1210", color: "#F1E9DC" }}>
+        <div className="max-w-3xl">
+          <p className="text-xs tracking-[0.2em] uppercase mb-4" style={{ color: "#C89B3C", fontFamily: "'IBM Plex Mono', monospace" }}>
+            Kami bantu jualan, warung tetap yang masak
+          </p>
+          <h1 className="text-4xl sm:text-6xl leading-tight mb-6" style={{ fontFamily: "'Fraunces', serif" }}>
+            Kami urus jualannya,<br />warung Siantar urus rasanya.
+          </h1>
+          <p className="text-base sm:text-lg max-w-xl" style={{ color: "#d8cdb8" }}>
+            Dapur Siantar membantu warung dan dapur rumahan di Pematangsiantar
+            promosi dan terima pesanan online. Setiap pesanan yang berhasil, kami
+            ambil bagian kecil sebagai jasa perantara — warung tidak bayar di muka
+            sepeser pun.
+          </p>
+          <div className="flex flex-wrap gap-3 mt-8">
+            <a
+              href="#katalog"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
+              style={{ background: "#7A2E2E", color: "#F1E9DC" }}
+            >
+              Jelajahi Hidangan <ArrowRight size={16} />
+            </a>
+            <a
+              href="#penjual"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
+              style={{ border: "1px solid #C89B3C", color: "#F1E9DC" }}
+            >
+              Daftar Jadi Mitra <Store size={16} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <WeavePattern flip />
+
+      {/* CARA KERJA */}
+      <section className="px-6 sm:px-12 py-16">
+        <h2 className="text-2xl sm:text-3xl mb-10" style={{ fontFamily: "'Fraunces', serif" }}>Cara kerja</h2>
+        <div className="grid sm:grid-cols-3 gap-8">
+          {steps.map((s) => (
+            <div key={s.n}>
+              <p style={{ fontFamily: "'IBM Plex Mono', monospace", color: "#C89B3C", fontSize: 13 }}>{s.n}</p>
+              <h3 className="text-lg mt-2 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>{s.title}</h3>
+              <p className="text-sm" style={{ color: "#5c4f42" }}>{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* UNTUK PENJUAL */}
+      <section id="penjual" className="px-6 sm:px-12 py-16" style={{ background: "#1C1210", color: "#F1E9DC" }}>
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp size={18} style={{ color: "#C89B3C" }} />
+          <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "#C89B3C", fontFamily: "'IBM Plex Mono', monospace" }}>
+            Untuk pemilik warung &amp; dapur rumahan
+          </p>
+        </div>
+        <h2 className="text-2xl sm:text-3xl mb-10 max-w-xl" style={{ fontFamily: "'Fraunces', serif" }}>
+          Fokus masak. Urusan promosi dan pesanan, biar kami yang pegang.
+        </h2>
+        <div className="grid sm:grid-cols-3 gap-8 mb-10">
+          {sellerBenefits.map((b, i) => (
+            <div key={i}>
+              <b.icon size={20} style={{ color: "#C89B3C" }} className="mb-3" />
+              <h3 className="text-lg mb-1" style={{ fontFamily: "'Fraunces', serif" }}>{b.title}</h3>
+              <p className="text-sm" style={{ color: "#d8cdb8" }}>{b.body}</p>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => setShowSellerForm(true)}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
+          style={{ background: "#C89B3C", color: "#1C1210" }}
+        >
+          <Store size={16} /> Daftarkan Warung Anda
+        </button>
+      </section>
+
+      <WeavePattern flip />
+
+      {/* KATALOG */}
+      <section id="katalog" className="px-6 sm:px-12 py-16" style={{ background: "#e9dfc9" }}>
+        <div className="flex items-baseline justify-between mb-10 flex-wrap gap-2">
+          <h2 className="text-2xl sm:text-3xl" style={{ fontFamily: "'Fraunces', serif" }}>Katalog hidangan</h2>
+          <p className="text-sm" style={{ color: "#7A2E2E", fontFamily: "'IBM Plex Mono', monospace" }}>{products.length} penjual terhubtart justify-between mb-4">
+          <div>
+            <p className="text-xs tracking-widest uppercase" style={{ color: "#7A2E2E", fontFamily: "'IBM Plex Mono', monospace" }}>
+              Daftar mitra
+            </p>
+            <h3 className="text-xl" style={{ fontFamily: "'Fraunces', serif", color: "#2B211D" }}>
+              Gabung jadi penjual
+            </h3>
+          </div>
+          <button onClick={() => onClose(false)} aria-label="Tutup" style={{ color: "#7A2E2E" }}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nama warung/kedai</label>
+            <input
+              type="text"
+              value={form.shop}
+              onChange={(e) => setForm({ ...form, shop: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="Contoh: Warung Mie Gomak Bu Rina"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nama pemilik</label>
+            <input
+              type="text"
+              value={form.owner}
+              onChange={(e) => setForm({ ...form, owner: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="Nama Anda"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Nomor WhatsApp</label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="08xxxxxxxxxx"
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide" style={{ color: "#2B211D", fontFamily: "'IBM Plex Mono', monospace" }}>Menu andalan</label>
+            <input
+              type="text"
+              value={form.menu}
+              onChange={(e) => setForm({ ...form, menu: e.target.value })}
+              className="w-full mt-1 px-3 py-2 rounded-lg outline-none"
+              style={{ background: "#fff", border: "1px solid #d8cdb8", color: "#2B211D" }}
+              placeholder="Contoh: Roti Ganda, Gulai Ayam"
+            />
+          </div>
+
+          {error && <p className="text-sm" style={{ color: "#7A2E2E" }}>{error}</p>}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium mt-2"
+            style={{ background: "#7A2E2E", color: "#F1E9DC" }}
+          >
+            <Store size={18} />
+            {saving ? "Menyiapkan pesan..." : "Kirim pendaftaran"}
+          </button>
+          <p className="text-xs text-center" style={{ color: "#9c8a72" }}>
+            Kami akan menghubungi Anda lewat WhatsApp untuk atur menu dan mulai terima pesanan.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function WeavePattern({ flip }) {
+  // Motif garis bertingkat terinspirasi tenun ulos — elemen penanda halaman ini
+  return (
+    <div className="flex w-full" style={{ height: 10, transform: flip ? "scaleY(-1)" : "none" }}>
+      {Array.from({ length: 24 }).map((_, i) => (
+        <div
+          key={i}
+          style={{
+            flex: 1,
+            height: "100%",
+            background: i % 3 === 0 ? "#C89B3C" : i % 3 === 1 ? "#7A2E2E" : "#F1E9DC",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function DapurSiantar() {
+  const [activeProduct, setActiveProduct] = useState(null);
+  const [showSellerForm, setShowSellerForm] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [confirmedText, setConfirmedText] = useState("Pesanan disiapkan — lanjutkan di WhatsApp");
+
+  useEffect(() => {
+    if (!confirmed) return;
+    const t = setTimeout(() => setConfirmed(false), 4000);
+    return () => clearTimeout(t);
+  }, [confirmed]);
+
+  return (
+    <div style={{ background: "#F1E9DC", minHeight: "100vh", fontFamily: "'Work Sans', sans-serif", color: "#2B211D" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+      `}</style>
+
+      {/* NAV */}
+      <header className="flex items-center justify-between px-6 sm:px-12 py-5" style={{ background: "#1C1210" }}>
+        <div className="flex items-center gap-2" style={{ color: "#F1E9DC" }}>
+          <Coffee size={20} style={{ color: "#C89B3C" }} />
+          <span style={{ fontFamily: "'Fraunces', serif", fontSize: 20 }}>Dapur Siantar</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <a href="#penjual" className="hidden sm:inline text-sm" style={{ color: "#d8cdb8" }}>
+            Untuk Penjual
+          </a>
+          <a
+            href="#katalog"
+            className="text-sm px-4 py-2 rounded-full"
+            style={{ background: "#C89B3C", color: "#1C1210", fontFamily: "'IBM Plex Mono', monospace" }}
+          >
+            Lihat Katalog
+          </a>
+        </div>
+      </header>
+
+      <WeavePattern />
+
+      {/* HERO */}
+      <section className="px-6 sm:px-12 py-16 sm:py-24" style={{ background: "#1C1210", color: "#F1E9DC" }}>
+        <div className="max-w-3xl">
+          <p className="text-xs tracking-[0.2em] uppercase mb-4" style={{ color: "#C89B3C", fontFamily: "'IBM Plex Mono', monospace" }}>
+            Kami bantu jualan, warung tetap yang masak
+          </p>
+          <h1 className="text-4xl sm:text-6xl leading-tight mb-6" style={{ fontFamily: "'Fraunces', serif" }}>
+            Kami urus jualannya,<br />warung Siantar urus rasanya.
+          </h1>
+          <p className="text-base sm:text-lg max-w-xl" style={{ color: "#d8cdb8" }}>
+            Dapur Siantar membantu warung dan dapur rumahan di Pematangsiantar
+            promosi dan terima pesanan online. Setiap pesanan yang berhasil, kami
+            ambil bagian kecil sebagai jasa perantara — warung tidak bayar di muka
+            sepeser pun.
+          </p>
+          <div className="flex flex-wrap gap-3 mt-8">
+            <a
+              href="#katalog"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
+              style={{ background: "#7A2E2E", color: "#F1E9DC" }}
+            >
+              Jelajahi Hidangan <ArrowRight size={16} />
+            </a>
+            <a
+              href="#penjual"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
+              style={{ border: "1px solid #C89B3C", color: "#F1E9DC" }}
+            >
+              Daftar Jadi Mitra <Store size={16} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <WeavePattern flip />
+
+      {/* CARA KERJA */}
+      <section className="px-6 sm:px-12 py-16">
+        <h2 className="text-2xl sm:text-3xl mb-10" style={{ fontFamily: "'Fraunces', serif" }}>Cara kerja</h2>
+        <div className="grid sm:grid-cols-3 gap-8">
+          {steps.map((s) => (
+            <div key={s.n}>
+              <p style={{ fontFamily: "'IBM Plex Mono', monospace", color: "#C89B3C", fontSize: 13 }}>{s.n}</p>
+              <h3 className="text-lg mt-2 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>{s.title}</h3>
+              <p className="text-sm" style={{ color: "#5c4f42" }}>{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* UNTUK PENJUAL */}
+      <section id="penjual" className="px-6 sm:px-12 py-16" style={{ background: "#1C1210", color: "#F1E9DC" }}>
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp size={18} style={{ color: "#C89B3C" }} />
+          <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "#C89B3C", fontFamily: "'IBM Plex Mono', monospace" }}>
+            Untuk pemilik warung &amp; dapur rumahan
+          </p>
+        </div>
+        <h2 className="text-2xl sm:text-3xl mb-10 max-w-xl" style={{ fontFamily: "'Fraunces', serif" }}>
+          Fokus masak. Urusan promosi dan pesanan, biar kami yang pegang.
+        </h2>
+        <div className="grid sm:grid-cols-3 gap-8 mb-10">
+          {sellerBenefits.map((b, i) => (
+            <div key={i}>
+              <b.icon size={20} style={{ color: "#C89B3C" }} className="mb-3" />
+              <h3 className="text-lg mb-1" style={{ fontFamily: "'Fraunces', serif" }}>{b.title}</h3>
+              <p className="text-sm" style={{ color: "#d8cdb8" }}>{b.body}</p>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => setShowSellerForm(true)}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full"
+          style={{ background: "#C89B3C", color: "#1C1210" }}
+        >
+          <Store size={16} /> Daftarkan Warung Anda
+        </button>
+      </section>
+
+      <WeavePattern flip />
+
+      {/* KATALOG */}
+      <section id="katalog" className="px-6 sm:px-12 py-16" style={{ background: "#e9dfc9" }}>
+        <div className="flex items-baseline justify-between mb-10 flex-wrap gap-2">
+          <h2 className="text-2xl sm:text-3xl" style={{ fontFamily: "'Fraunces', serif" }}>Katalog hidangan</h2>
+          <p className="text-sm" style={{ color: "#7A2E2E", fontFamily: "'IBM Plex Mono', monospace" }}>{products.length} penjual terhub
