@@ -138,7 +138,7 @@
 </script>
 
 <header>
-  <div class="brand"><span>☕</span><span class="serif">Dapur Siantar</span></div>
+  <div class="brand"><span class="serif">Dapur Siantar</span></div>
   <div class="nav-links">
     <a href="#penjual" class="nav-link">Untuk Penjual</a>
     <a href="#katalog" class="btn-pill mono">Lihat Katalog</a>
@@ -154,7 +154,7 @@
     <p class="lead">Dapur Siantar membantu warung dan dapur rumahan di Pematangsiantar promosi dan terima pesanan online. Setiap pesanan yang berhasil, kami ambil bagian kecil sebagai jasa perantara — warung tidak bayar di muka sepeser pun.</p>
     <div class="hero-ctas">
       <a href="#katalog" class="btn-maroon">Jelajahi Hidangan →</a>
-      <a href="#penjual" class="btn-outline">🏪 Daftar Jadi Mitra</a>
+      <a href="#penjual" class="btn-outline"> Daftar Jadi Mitra</a>
     </div>
   </div>
 </section>
@@ -190,22 +190,22 @@
   <h2 class="seller-heading serif">Fokus masak. Urusan promosi dan pesanan, biar kami yang pegang.</h2>
   <div class="seller-grid">
     <div>
-      <div style="font-size:20px;">📣</div>
+      <div style="font-size:20px;"></div>
       <h3 class="seller-card-title serif">Dipromosikan tanpa biaya di muka</h3>
       <p class="seller-card-body">Warung Anda tampil di katalog dan konten media sosial kami — Anda tidak menanggung biaya iklan.</p>
     </div>
     <div>
-      <div style="font-size:20px;">💬</div>
+      <div style="font-size:20px;"></div>
       <h3 class="seller-card-title serif">Pesanan langsung masuk rapi</h3>
       <p class="seller-card-body">Kami yang menerima, menyusun, dan meneruskan pesanan ke warung Anda lewat WhatsApp.</p>
     </div>
     <div>
-      <div style="font-size:20px;">💰</div>
+      <div style="font-size:20px;"></div>
       <h3 class="seller-card-title serif">Bayar hanya saat laku</h3>
       <p class="seller-card-body">Tidak ada biaya pendaftaran atau bulanan. Kami hanya mengambil bagian kecil dari setiap pesanan yang benar-benar terjadi.</p>
     </div>
   </div>
-  <button class="btn-gold" onclick="openSellerModal()">🏪 Daftarkan Warung Anda</button>
+  <button class="btn-gold" onclick="openSellerModal()"> Daftarkan Warung Anda</button>
 </section>
 
 <div class="weave flip" id="weave3"></div>
@@ -222,7 +222,7 @@
 
 <section class="about-section">
   <div class="about-inner">
-    <div style="font-size:20px;margin-bottom:16px;">🕐</div>
+    <div style="font-size:20px;margin-bottom:16px;"></div>
     <h2 class="serif">Kami bukan dapurnya, kami tim jualannya.</h2>
     <p>Dapur Siantar bekerja sama dengan warung, kedai, dan dapur rumahan asli Pematangsiantar untuk urusan promosi dan penerimaan pesanan online. Warung tidak perlu bayar di muka — kami mendapatkan penghasilan dari bagian kecil setiap pesanan yang berhasil kami bantu, jadi kami hanya untung kalau warung mitra juga laku.</p>
   </div>
@@ -262,7 +262,7 @@
         <textarea id="order-note" rows="2" placeholder="Contoh: tidak pakai pedas"></textarea>
       </div>
       <p class="error-text" id="order-error" style="display:none;"></p>
-      <button type="submit" class="submit-btn" id="order-submit-btn">💬 Lanjut ke WhatsApp</button>
+      <button type="submit" class="submit-btn" id="order-submit-btn"> Lanjut ke WhatsApp</button>
       <p class="modal-note">Anda akan diarahkan ke WhatsApp untuk mengirim pesanan ini ke tim penghubung Dapur Siantar.</p>
     </form>
   </div>
@@ -296,7 +296,7 @@
         <input type="text" id="seller-menu" placeholder="Contoh: Roti Ganda, Gulai Ayam" />
       </div>
       <p class="error-text" id="seller-error" style="display:none;"></p>
-      <button type="submit" class="submit-btn" id="seller-submit-btn">🏪 Kirim pendaftaran</button>
+      <button type="submit" class="submit-btn" id="seller-submit-btn"> Kirim pendaftaran</button>
       <p class="modal-note">Kami akan menghubungi Anda lewat WhatsApp untuk atur menu dan mulai terima pesanan.</p>
     </form>
   </div>
@@ -403,7 +403,7 @@
     window.open(`https://wa.me/${window.CONNECTOR_PHONE}?text=${msg}`, "_blank");
 
     btn.disabled = false;
-    btn.textContent = "💬 Lanjut ke WhatsApp";
+    btn.textContent = "Lanjut ke WhatsApp";
     closeOrderModal();
     showToast("Pesanan disiapkan — lanjutkan di WhatsApp");
   }
@@ -455,7 +455,7 @@
     window.open(`https://wa.me/${window.CONNECTOR_PHONE}?text=${msg}`, "_blank");
 
     btn.disabled = false;
-    btn.textContent = "🏪 Kirim pendaftaran";
+    btn.textContent = "Kirim pendaftaran";
     closeSellerModal();
     showToast("Pendaftaran dikirim — lanjutkan di WhatsApp");
   }
