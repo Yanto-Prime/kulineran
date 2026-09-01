@@ -26,14 +26,15 @@
   button{font-family:inherit;cursor:pointer;border:none;}
   input,textarea{font-family:inherit;font-size:14px;}
 
-  /* Header & Nav */
+  /* Header & Nav Sticky */
   header{
     display:flex;
     align-items:center;
-    justify-space-between;
+    justify-content:space-between;
     padding:16px 24px;
     background:var(--bg-dark);
-    position:relative;
+    position:sticky;
+    top:0;
     z-index:100;
   }
   @media(min-width:640px){
@@ -41,7 +42,7 @@
   }
   .brand{display:flex;align-items:center;gap:8px;color:var(--cream);font-size:20px;}
   
-  /* Hamburger Button */
+  /* Hamburger Button (Dorong ke Kanan) */
   .hamburger-btn {
     display: flex;
     flex-direction: column;
@@ -52,6 +53,7 @@
     padding: 0;
     z-index: 101;
     cursor: pointer;
+    margin-left: auto;
   }
   .hamburger-btn span {
     width: 100%;
@@ -387,7 +389,6 @@
 </div>
 
 <script>
-  // Fungsi Buka/Tutup Side Drawer Hamburger Menu
   function toggleMenu() {
     const drawer = document.getElementById("nav-drawer");
     const overlay = document.getElementById("nav-overlay");
