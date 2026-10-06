@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Katalog Hidangan — Dapur Siantar</title><link rel="stylesheet" href="style.css" /></head><body>
+<script>window.CONNECTOR_PHONE = "6283893870823";</script>
+<header><a href="index.html" class="brand"><span class="serif">Dapur Siantar</span></a>
+<button class="hamburger-btn" onclick="toggleMenu()" aria-label="Buka menu"><span></span><span></span><span></span></button></header>
+<div class="nav-drawer-overlay" id="nav-overlay" onclick="toggleMenu()"></div>
+<div class="nav-drawer" id="nav-drawer"><a href="index.html" class="nav-link">Beranda</a><a href="katalog.html" class="nav-link current">Katalog Hidangan</a><a href="untuk-penjual.html" class="nav-link">Untuk Penjual</a><a href="tentang.html" class="nav-link">Tentang & FAQ</a><a href="katalog.html" class="btn-pill mono">Lihat Katalog →</a></div>
+<div class="weave" id="weave1"></div>
+<div class="page-hero"><h1 class="serif">Katalog hidangan</h1><p>Cari dan pilih hidangan khas Siantar langsung dari penjual aslinya.</p></div>
+<section class="katalog-section"><div class="toolbar"><input id="search-input" type="search" placeholder="Cari hidangan atau warung..." oninput="renderCatalog()" aria-label="Cari hidangan" />
+<select id="sort-select" onchange="renderCatalog()" aria-label="Urutkan"><option value="default">Urutan awal</option><option value="az">Nama A–Z</option></select></div>
+<div class="chips"><button class="chip active" onclick="setCat('Semua',this)">Semua</button><button class="chip" onclick="setCat('Makanan Berat',this)">Makanan Berat</button><button class="chip" onclick="setCat('Roti & Jajanan',this)">Roti &amp; Jajanan</button><button class="chip" onclick="setCat('Minuman',this)">Minuman</button></div>
+<p class="katalog-count mono" id="katalog-count" style="margin-bottom:16px"></p><div class="card-grid" id="card-grid"></div></section>
+<div class="weave" id="weave4"></div><!-- Footer dengan ID untuk scroll target -->
+<footer id="medsos-footer">
+  <span>Dapur Siantar &middot; Bantu warung Siantar jualan online</span>
+  <div class="social-links">
+    <!-- Instagram -->
+    <a href="RENAME_LINK_IG_DISINI" target="_blank" rel="noopener noreferrer" class="social-icon" title="Instagram">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <!-- Facebook -->
+    <a href="RENAME_LINK_FB_DISINI" target="_blank" rel="noopener noreferrer" class="social-icon" title="Facebook">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
+    <!-- TikTok -->
+    <a href="RENAME_LINK_TIKTOK_DISINI" target="_blank" rel="noopener noreferrer" class="social-icon" title="TikTok">
+      <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+    </a>
+  </div>
+</footer>
+<!-- ORDER MODAL -->
+<div class="overlay" id="order-overlay" onclick="if(event.target===this) closeOrderModal(false)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div>
+        <p class="modal-eyebrow mono">Pesan hidangan</p>
+        <h3 class="modal-title serif" id="order-product-name"></h3>
+        <p class="modal-sub" id="order-product-seller"></p>
+      </div>
+      <button class="close-btn" onclick="closeOrderModal(false)">✕</button>
+    </div>
+    <form id="order-form" onsubmit="submitOrder(event)">
+      <div class="field">
+        <label class="mono">Nama</label>
+        <input type="text" id="order-name" placeholder="Nama Anda" />
+      </div>
+      <div class="field">
+        <label class="mono">Nomor WhatsApp</label>
+        <input type="tel" id="order-phone" placeholder="08xxxxxxxxxx" />
+      </div>
+      <div class="field">
+        <label class="mono">Jumlah</label>
+        <input type="number" id="order-qty" min="1" value="1" />
+      </div>
+      <div class="field">
+        <label class="mono">Catatan (opsional)</label>
+        <textarea id="order-note" rows="2" placeholder="Contoh: tidak pakai pedas"></textarea>
+      </div>
+      <p class="error-text" id="order-error" style="display:none;"></p>
+      <button type="submit" class="submit-btn" id="order-submit-btn"> Lanjut ke WhatsApp</button>
+      <p class="modal-note">Anda akan diarahkan ke WhatsApp untuk mengirim pesanan ini ke tim penghubung Dapur Siantar.</p>
+    </form>
+  </div>
+</div>
+
+<!-- SELLER MODAL -->
+<div class="overlay" id="seller-overlay" onclick="if(event.target===this) closeSellerModal(false)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div>
+        <p class="modal-eyebrow mono">Daftar mitra</p>
+        <h3 class="modal-title serif">Gabung jadi penjual</h3>
+      </div>
+      <button class="close-btn" onclick="closeSellerModal(false)">✕</button>
+    </div>
+    <form id="seller-form" onsubmit="submitSeller(event)">
+      <div class="field">
+        <label class="mono">Nama warung/kedai</label>
+        <input type="text" id="seller-shop" placeholder="Contoh: Warung Mie Gomak Bu Rina" />
+      </div>
+      <div class="field">
+        <label class="mono">Nama pemilik</label>
+        <input type="text" id="seller-owner" placeholder="Nama Anda" />
+      </div>
+      <div class="field">
+        <label class="mono">Nomor WhatsApp</label>
+        <input type="tel" id="seller-phone" placeholder="08xxxxxxxxxx" />
+      </div>
+      <div class="field">
+        <label class="mono">Menu andalan</label>
+        <input type="text" id="seller-menu" placeholder="Contoh: Roti Ganda, Gulai Ayam" />
+      </div>
+      <p class="error-text" id="seller-error" style="display:none;"></p>
+      <button type="submit" class="submit-btn" id="seller-submit-btn"> Kirim pendaftaran</button>
+      <p class="modal-note">Kami akan menghubungi Anda lewat WhatsApp untuk atur menu dan mulai terima pesanan.</p>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span>✅</span><span id="toast-text"></span>
+</div>
+<div class="toast" id="toast"><span>✅</span><span id="toast-text"></span></div>
+<script src="script.js"></script>
+</body></html>
